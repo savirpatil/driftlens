@@ -17,10 +17,16 @@ class SHAPMonitor:
         self.ref_mean_abs: dict[str, float] = self._compute_mean_abs(reference)
 
     def _compute_mean_abs(self, df: pd.DataFrame) -> dict[str, float]:
-        shap_values = self.explainer.shap_values(df)
+        shap_values = self.explainer.shap_values(df, check_additivity=False)
         if isinstance(shap_values, list):
-            shap_values = shap_values[1]
-        mean_abs = np.abs(shap_values).mean(axis=0)
+            shap_arr = np.mean([np.abs(sv) for sv in shap_values], axis=0)
+        else:
+            shap_arr = np.abs(shap_values)
+        if shap_arr.ndim == 3:
+            shap_arr = shap_arr.mean(axis=2)
+        mean_abs = shap_arr.mean(axis=0)
+        if mean_abs.ndim > 1:
+            mean_abs = mean_abs.mean(axis=-1)
         return {col: float(mean_abs[i]) for i, col in enumerate(df.columns)}
 
     def compute_delta(
