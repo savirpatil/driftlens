@@ -2,7 +2,7 @@
 
 A domain-agnostic ML model monitoring system that detects distribution drift, explains why it's happening in natural language, and recommends what to do next.
 
-Inspired by the pattern of Microsoft's internal AuRA (Automated Risk Assessment) system. Grounded in three papers: Leest et al. (2024) on expert-driven monitoring, Klaise et al. (ICML 2020) on production model explainability, and Sipple et al. (Springer 2025) on zero-shot drift detection with LLMs.
+Grounded in three papers: Leest et al. (2024) on expert-driven monitoring, Klaise et al. (ICML 2020) on production model explainability, and Sipple et al. (Springer 2025) on zero-shot drift detection with LLMs.
 
 ## What it does
 
