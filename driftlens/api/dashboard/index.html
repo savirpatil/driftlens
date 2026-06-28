@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DriftLens Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #1a1d2e;
+      border-bottom: 1px solid #2d3148;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    header h1 { font-size: 1.25rem; font-weight: 600; color: #a78bfa; }
+    header span { font-size: 0.8rem; color: #64748b; }
+
+    #status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #ef4444;
+      margin-left: auto;
+    }
+    #status-dot.connected { background: #22c55e; }
+
+    main { padding: 2rem; max-width: 1200px; margin: 0 auto; }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: #1a1d2e;
+      border: 1px solid #2d3148;
+      border-radius: 8px;
+      padding: 1.25rem;
+    }
+
+    .stat-card .label { font-size: 0.75rem; color: #64748b; margin-bottom: 0.5rem; }
+    .stat-card .value { font-size: 1.75rem; font-weight: 700; color: #a78bfa; }
+
+    .section-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 1rem;
+    }
+
+    #run-form {
+      background: #1a1d2e;
+      border: 1px solid #2d3148;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-end;
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; flex: 1; }
+    .form-group label { font-size: 0.75rem; color: #64748b; }
+
+    input[type="text"] {
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem;
+      color: #e2e8f0;
+      font-size: 0.85rem;
+      width: 100%;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #a78bfa;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      padding-bottom: 0.5rem;
+    }
+
+    button {
+      background: #7c3aed;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 0.55rem 1.25rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    button:hover { background: #6d28d9; }
+    button:disabled { background: #2d3148; color: #64748b; cursor: not-allowed; }
+
+    #run-status { font-size: 0.75rem; color: #64748b; margin-top: 0.5rem; }
+
+    /* Alert cards */
+    .alert-card {
+      background: #1a1d2e;
+      border: 1px solid #2d3148;
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+      border-left: 4px solid #64748b;
+      animation: fadeIn 0.3s ease;
+      overflow: hidden;
+    }
+
+    .alert-card.LOW  { border-left-color: #22c55e; }
+    .alert-card.MED  { border-left-color: #f59e0b; }
+    .alert-card.HIGH { border-left-color: #ef4444; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Summary row — always visible, clickable */
+    .alert-summary {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .alert-summary:hover { background: #1e2235; }
+
+    .badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .badge.LOW  { background: #14532d; color: #22c55e; }
+    .badge.MED  { background: #451a03; color: #f59e0b; }
+    .badge.HIGH { background: #450a0a; color: #ef4444; }
+
+    .summary-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .summary-top {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .alert-batch { font-size: 0.75rem; color: #64748b; }
+    .alert-psi   { font-size: 0.75rem; color: #94a3b8; }
+
+    .summary-oneliner {
+      font-size: 0.8rem;
+      color: #cbd5e1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .alert-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      flex-shrink: 0;
+    }
+
+    .feature-tag {
+      background: #2d3148;
+      color: #a78bfa;
+      font-size: 0.7rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    .chevron {
+      color: #64748b;
+      font-size: 0.75rem;
+      flex-shrink: 0;
+      transition: transform 0.2s ease;
+    }
+
+    .alert-card.open .chevron { transform: rotate(180deg); }
+
+    /* Detail panel — hidden by default */
+    .alert-detail {
+      display: none;
+      padding: 0 1.25rem 1.25rem;
+      border-top: 1px solid #2d3148;
+    }
+
+    .alert-card.open .alert-detail { display: block; }
+
+    .detail-section-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 0.75rem 0 0.4rem;
+    }
+
+    .alert-explanation {
+      font-size: 0.8rem;
+      color: #94a3b8;
+      line-height: 1.6;
+      padding: 0.75rem;
+      background: #0f1117;
+      border-radius: 6px;
+    }
+
+    .alert-recommendation {
+      font-size: 0.8rem;
+      color: #cbd5e1;
+      line-height: 1.6;
+      padding: 0.75rem;
+      background: #1e2235;
+      border-radius: 6px;
+    }
+
+    .alert-recommendation::before {
+      content: '→ ';
+      color: #a78bfa;
+      font-weight: 700;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: #334155;
+      padding: 3rem;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>DriftLens</h1>
+    <span>ML Model Monitoring</span>
+    <div id="status-dot" title="SSE connection"></div>
+  </header>
+
+  <main>
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="label">Total Batches</div>
+        <div class="value" id="stat-batches">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">HIGH Alerts</div>
+        <div class="value" id="stat-high">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">MED Alerts</div>
+        <div class="value" id="stat-med">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Max PSI Seen</div>
+        <div class="value" id="stat-psi">—</div>
+      </div>
+    </div>
+
+    <div id="run-form">
+      <div class="section-title">Run Batch</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Batch CSV Path</label>
+          <input type="text" id="batch-path" placeholder="data/drift_scenarios/scenario_01_feature_drift_mild.csv" />
+        </div>
+        <div class="checkbox-group">
+          <input type="checkbox" id="has-labels" />
+          <label for="has-labels">Has Labels</label>
+        </div>
+        <button id="run-btn" onclick="runBatch()">Run</button>
+      </div>
+      <div id="run-status"></div>
+    </div>
+
+    <div id="alerts-container">
+      <div class="section-title">Drift Reports</div>
+      <div id="alerts-list">
+        <div class="empty-state">No drift reports yet. Run a batch to start monitoring.</div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const SEVERITY_ORDER = { HIGH: 0, MED: 1, LOW: 2 };
+    const stats = { batches: 0, high: 0, med: 0, maxPsi: null };
+    let allReports = [];
+
+    function updateStats(severity, psi) {
+      stats.batches++;
+      if (severity === 'HIGH') stats.high++;
+      if (severity === 'MED') stats.med++;
+      if (stats.maxPsi === null || psi > stats.maxPsi) stats.maxPsi = psi;
+      document.getElementById('stat-batches').textContent = stats.batches;
+      document.getElementById('stat-high').textContent = stats.high;
+      document.getElementById('stat-med').textContent = stats.med;
+      document.getElementById('stat-psi').textContent = stats.maxPsi?.toFixed(3) ?? '—';
+    }
+
+    function makeOneLiner(report) {
+      const severity = report.alert.severity;
+      const features = report.alert.top_drifted_features.slice(0, 3).join(', ');
+      const psi = report.alert.max_psi.toFixed(3);
+      if (severity === 'LOW') return `Minor drift in ${features} — continue monitoring`;
+      if (severity === 'MED') return `Moderate drift in ${features} — schedule retrain`;
+      return `Critical drift in ${features} — immediate action required`;
+    }
+
+    function buildCard(report) {
+      const alert = report.alert;
+      const explanation = report.explanation?.explanation ?? '';
+      const recommendation = report.recommendation?.recommendation ?? '';
+      const severity = alert.severity;
+
+      const card = document.createElement('div');
+      card.className = `alert-card ${severity}`;
+      card.dataset.severity = severity;
+      card.dataset.psi = alert.max_psi;
+
+      card.innerHTML = `
+        <div class="alert-summary">
+          <span class="badge ${severity}">${severity}</span>
+          <div class="summary-meta">
+            <div class="summary-top">
+              <span class="alert-batch">batch ${alert.batch_id}</span>
+              <span class="alert-psi">PSI ${alert.max_psi.toFixed(3)}</span>
+            </div>
+            <div class="summary-oneliner">${makeOneLiner(report)}</div>
+          </div>
+          <div class="alert-features">
+            ${alert.top_drifted_features.map(f => `<span class="feature-tag">${f}</span>`).join('')}
+          </div>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="alert-detail">
+          <div class="detail-section-label">Explanation</div>
+          <div class="alert-explanation">${explanation}</div>
+          <div class="detail-section-label">Recommendation</div>
+          <div class="alert-recommendation">${recommendation}</div>
+        </div>
+      `;
+
+      card.querySelector('.alert-summary').addEventListener('click', () => {
+        card.classList.toggle('open');
+      });
+
+      return card;
+    }
+
+    function rerenderList() {
+      const list = document.getElementById('alerts-list');
+      list.innerHTML = '';
+
+      const sorted = [...allReports].sort((a, b) => {
+        const sevDiff = SEVERITY_ORDER[a.alert.severity] - SEVERITY_ORDER[b.alert.severity];
+        if (sevDiff !== 0) return sevDiff;
+        return b.alert.max_psi - a.alert.max_psi;
+      });
+
+      sorted.forEach(report => list.appendChild(buildCard(report)));
+    }
+
+    function addReport(report) {
+      const empty = document.querySelector('.empty-state');
+      if (empty) empty.remove();
+      updateStats(report.alert.severity, report.alert.max_psi);
+      allReports.push(report);
+      rerenderList();
+    }
+
+    function connectSSE() {
+      const dot = document.getElementById('status-dot');
+      const es = new EventSource('/stream');
+      es.addEventListener('report', e => addReport(JSON.parse(e.data)));
+      es.addEventListener('ping', () => {});
+      es.onopen = () => dot.classList.add('connected');
+      es.onerror = () => {
+        dot.classList.remove('connected');
+        setTimeout(connectSSE, 3000);
+      };
+    }
+
+    async function loadExistingReports() {
+      try {
+        const res = await fetch('/reports');
+        const reports = await res.json();
+        reports.forEach(addReport);
+      } catch (e) {}
+    }
+
+    async function runBatch() {
+      const path = document.getElementById('batch-path').value.trim();
+      const hasLabels = document.getElementById('has-labels').checked;
+      const btn = document.getElementById('run-btn');
+      const status = document.getElementById('run-status');
+      if (!path) { status.textContent = 'Please enter a batch path.'; return; }
+      btn.disabled = true;
+      status.textContent = 'Running pipeline...';
+      try {
+        const res = await fetch('/run-batch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ batch_path: path, has_labels: hasLabels }),
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          status.textContent = `Error: ${err.detail ?? 'Unknown error'}`;
+        } else {
+          status.textContent = 'Done. Report streamed to dashboard.';
+        }
+      } catch (e) {
+        status.textContent = `Error: ${e.message}`;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    connectSSE();
+    loadExistingReports();
+  </script>
+</body>
+</html>

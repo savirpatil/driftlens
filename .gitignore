@@ -1,0 +1,40 @@
+# Virtual environment
+.venv/
+
+# Environment variables
+.env
+
+# W&B
+wandb/
+
+# Model artifacts
+models/*.joblib
+
+# Data (too large for git)
+data/reference_window.csv
+data/test_set.csv
+data/drift_scenarios/
+
+# Outputs
+outputs/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# pytest
+.pytest_cache/
+.coverage
+
+# macOS
+.DS_Store
+
+# VSCode
+.vscode/
+
+# Jupyter
+.ipynb_checkpoints/

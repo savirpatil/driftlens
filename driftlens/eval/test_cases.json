@@ -1,0 +1,34 @@
+{
+  "test_cases": [
+    {
+      "scenario": "scenario_00_no_drift",
+      "expected_severity": "LOW",
+      "expected_min_score": 3.0,
+      "notes": "No meaningful drift injected. Explanation should reflect low PSI values."
+    },
+    {
+      "scenario": "scenario_01_feature_drift_mild",
+      "expected_severity": "HIGH",
+      "expected_min_score": 3.5,
+      "notes": "Mild drift on LIMIT_BAL and AGE. Explanation should cite both with direction."
+    },
+    {
+      "scenario": "scenario_02_feature_drift_severe",
+      "expected_severity": "HIGH",
+      "expected_min_score": 4.0,
+      "notes": "Severe drift on AGE, LIMIT_BAL, BILL_AMT1. Explanation should cite magnitude and SHAP delta."
+    },
+    {
+      "scenario": "scenario_03_payment_drift",
+      "expected_severity": "HIGH",
+      "expected_min_score": 4.0,
+      "notes": "Heavy payment feature drift. PAY_0, PAY_2, PAY_3 should all be cited."
+    },
+    {
+      "scenario": "scenario_04_concept_drift",
+      "expected_severity": "HIGH",
+      "expected_min_score": 3.5,
+      "notes": "Concept drift via PAY_0 redistribution and LIMIT_BAL compression."
+    }
+  ]
+}

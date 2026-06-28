@@ -1,0 +1,32 @@
+{
+  "features": [
+    {"name": "LIMIT_BAL", "dtype": "float", "min": 10000, "max": 10000000},
+    {"name": "SEX", "dtype": "int", "allowed_values": [1, 2]},
+    {"name": "EDUCATION", "dtype": "int", "allowed_values": [0, 1, 2, 3, 4, 5, 6]},
+    {"name": "MARRIAGE", "dtype": "int", "allowed_values": [0, 1, 2, 3]},
+    {"name": "AGE", "dtype": "int", "min": 18, "max": 100},
+    {"name": "PAY_0", "dtype": "int", "min": -2, "max": 8},
+    {"name": "PAY_2", "dtype": "int", "min": -2, "max": 8},
+    {"name": "PAY_3", "dtype": "int", "min": -2, "max": 8},
+    {"name": "PAY_4", "dtype": "int", "min": -2, "max": 8},
+    {"name": "PAY_5", "dtype": "int", "min": -2, "max": 8},
+    {"name": "PAY_6", "dtype": "int", "min": -2, "max": 8},
+    {"name": "BILL_AMT1", "dtype": "float", "min": -165580, "max": 9000000},
+    {"name": "BILL_AMT2", "dtype": "float", "min": -69777, "max": 9000000},
+    {"name": "BILL_AMT3", "dtype": "float", "min": -157264, "max": 9000000},
+    {"name": "BILL_AMT4", "dtype": "float", "min": -170000, "max": 9000000},
+    {"name": "BILL_AMT5", "dtype": "float", "min": -81334, "max": 9000000},
+    {"name": "BILL_AMT6", "dtype": "float", "min": -339603, "max": 9000000},
+    {"name": "PAY_AMT1", "dtype": "float", "min": 0, "max": 9000000},
+    {"name": "PAY_AMT2", "dtype": "float", "min": 0, "max": 9000000},
+    {"name": "PAY_AMT3", "dtype": "float", "min": 0, "max": 9000000},
+    {"name": "PAY_AMT4", "dtype": "float", "min": 0, "max": 9000000},
+    {"name": "PAY_AMT5", "dtype": "float", "min": 0, "max": 9000000},
+    {"name": "PAY_AMT6", "dtype": "float", "min": 0, "max": 9000000}
+  ],
+  "target": {
+    "name": "default_payment_next_month",
+    "dtype": "int",
+    "allowed_values": [0, 1]
+  }
+}
